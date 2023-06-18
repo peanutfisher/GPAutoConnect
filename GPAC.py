@@ -71,7 +71,8 @@ def signin(temp=None):
 
 
 def get_rsa(token):
-    click_center('.\RSA_icon.png', 0, 0, showed=True)
+    pg.doubleClick(220,1060)
+    #click_center('.\RSA_icon.png', 0, 0, showed=True)
     click_center('.\RSA_main.png', 0, 0, showed=False)
     pg.typewrite(token)
     pg.press('enter')
@@ -80,10 +81,7 @@ def get_rsa(token):
 
 def choose_GP(x, y):
     # check if no-split is connected
-    if (pg.locateOnScreen('.\GP_nosplit.png')):
-        print('No Split is connected! Enjoy it!')
-    # if not then choose no-split
-    else:
+    if (not pg.locateOnScreen('.\GP_nosplit.png')):
         print('changing gateway')
         # click the "Change Gateway"
         pg.click(x+100, y-95, button='left', duration=0.3)
@@ -92,18 +90,35 @@ def choose_GP(x, y):
         pg.typewrite('no')
         # click the "no split"
         pg.click(x+100, y-292, button='left', duration=0.3)
-        print('Done, enjoy it.')
+
+    print('GP is connected! Enjoy it!')
 
 
 def connect_GP(x, y):
+    """
+    Connect GP
+    """
     # find and click "connect"
-    pg.tripleClick(1870, 1010)
-    # time.sleep(5)
-    # GP login with NT
-    signin(NT_PASSWD)
-    get_rsa(RSA_PASSWD)
-    # GP login with RSA
-    signin()
+    pg.click(1870, 1010)
+    pg.moveRel(0,-200)
+    time.sleep(10)
+    # check if GP is reconnected or not
+    reconnect = False
+    connecting = False
+    while (not (reconnect or connecting)):
+        # keep querying if reconnected
+        reconnect = pg.locateOnScreen('./GP_reconnect.png')
+        connecting = pg.locateOnScreen('./GP_login_signon.png')
+        print(f'reconnect: {reconnect}, connecting: {connecting}')
+    # If it is connected after click "connect" goto choose_GP func
+    if reconnect:
+        choose_GP(x, y)
+        os._exit(0)
+    else:
+        signin(NT_PASSWD)
+        get_rsa(RSA_PASSWD)
+        # GP login with RSA
+        signin()
 
 def clear_status():
     """
@@ -148,6 +163,7 @@ def dontsleep():
 if __name__ == '__main__':
     # Enable the dontsleep tool
     dontsleep()
+    print('Starting GP...')
     # check if GP icon is gray(notconnected or connectfailed)
     gray_gp = click_center('.\gray_GP1.png', 0, 0, showed=True) or click_center('.\gray_GP2.png', 0, 0, showed=True)
     blue_gp = click_center('.\GP_blue.png', 0, 0, showed=True)

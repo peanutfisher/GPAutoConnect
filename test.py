@@ -2,7 +2,7 @@ import pyautogui as pg
 import time
 import os
 
-a = pg.locateCenterOnScreen('.\dontsleep.png')
+a = pg.locateCenterOnScreen('./GP_disconnect.png')
 print(a)
 
 def click_center(png, x_offset=0, y_offset=0, showed=True):
@@ -39,13 +39,13 @@ def click_center(png, x_offset=0, y_offset=0, showed=True):
     except Exception as e:
         print(f'Cannot find {png} in your Screen.')
 
-def dontsleep():
-    print('Starting Dontsleep...')
-    pos = pg.locateCenterOnScreen('.\dontsleep.png')
-    if pos:
-        pg.rightClick(pos[0], pos[1])
-        pg.click(pos[0]-30, pos[1]-10)
-    else:
-        print('Dontsleep is ON.')
-    
-dontsleep()
+def get_rsa(token):
+    pg.doubleClick(220,1060)
+    #click_center('.\RSA_icon.png', 0, 0, showed=True)
+    click_center('.\RSA_main.png', 0, 0, showed=False)
+    pg.typewrite(token)
+    pg.press('enter')
+    # move to copy button
+    click_center('.\RSA_copy.png', 0, 0, showed=True)    
+
+get_rsa()
