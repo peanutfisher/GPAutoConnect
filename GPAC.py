@@ -71,7 +71,7 @@ def signin(temp=None):
 
 
 def get_rsa(token):
-    pg.doubleClick(220,1060)
+    pg.click(220,1060)
     #click_center('.\RSA_icon.png', 0, 0, showed=True)
     click_center('.\RSA_main.png', 0, 0, showed=False)
     pg.typewrite(token)
