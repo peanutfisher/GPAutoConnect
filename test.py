@@ -2,8 +2,11 @@ import pyautogui as pg
 import time
 import os
 
-a = pg.locateCenterOnScreen('./GP_disconnect.png')
+a = pg.locateCenterOnScreen('./GP_blue.png')
 print(a)
+
+NT_PASSWD = 'Ballball15'
+RSA_PASSWD = '10538185'
 
 def click_center(png, x_offset=0, y_offset=0, showed=True):
     """
@@ -40,12 +43,19 @@ def click_center(png, x_offset=0, y_offset=0, showed=True):
         print(f'Cannot find {png} in your Screen.')
 
 def get_rsa(token):
-    pg.doubleClick(220,1060)
-    #click_center('.\RSA_icon.png', 0, 0, showed=True)
-    click_center('.\RSA_main.png', 0, 0, showed=False)
-    pg.typewrite(token)
-    pg.press('enter')
-    # move to copy button
-    click_center('.\RSA_copy.png', 0, 0, showed=True)    
+    """
+    Get RSA Credential
+    """
+    #click_center('./RSA_icon.png', 0, 0, showed=True)
+    # Just click location of the RSA icon(different PC different position)
+    pg.click(220, 1060)
+    # Check if the RSA is already being inputed, if so then click copy
+    if not pg.locateOnScreen('./RSA_on.png'):
+        click_center('./RSA_main.png', 0, 0, showed=False)
+        pg.typewrite(token)
+        pg.press('enter')
+        time.sleep(1)
+    # Click RSA copy button
+    click_center('./RSA_copy.png', 0, 0, showed=False) 
 
-get_rsa()
+#get_rsa(RSA_PASSWD)

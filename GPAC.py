@@ -38,7 +38,7 @@ def click_center(png, x_offset=0, y_offset=0, showed=True):
                 number += 1
                 print(f'Waiting {png} for {number} times')
                 # in case we wait too much time
-                if number > 100:
+                if number > 120:
                     print('Loging process could be hung, clearing unknown status...')
                     clear_status()
             x1, y1 = showed[0], showed[1]
@@ -55,7 +55,7 @@ def click_center(png, x_offset=0, y_offset=0, showed=True):
 
 def signin(temp=None):
     # mvoe mouse to input login passwd info
-    x1, y1 = click_center('.\GP_login_signon.png', 0, -50, showed=False)
+    x1, y1 = click_center('./GP_login_signon.png', 0, -50, showed=False)
     # check if it is NT login or RSA login
     if temp:
         pg.typewrite(temp)
@@ -67,21 +67,62 @@ def signin(temp=None):
     # click the certification confirm dialog
     # As the Certification confirm prompt sometimes not showup
     for i in range(2):
-        click_center('.\cert_confirm.png', 0, 0, showed=True)
+        click_center('./cert_confirm.png', 0, 0, showed=True)
 
 
 def get_rsa(token):
-    pg.click(220,1060)
-    #click_center('.\RSA_icon.png', 0, 0, showed=True)
-    click_center('.\RSA_main.png', 0, 0, showed=False)
-    pg.typewrite(token)
-    pg.press('enter')
-    # move to copy button
-    click_center('.\RSA_copy.png', 0, 0, showed=True)
+    """
+    Get RSA Credential
+    """
+    #click_center('./RSA_icon.png', 0, 0, showed=True)
+    # Just click location of the RSA icon(different PC different position)
+    pg.click(220, 1060)
+    # Check if the RSA is already being inputed, if so then click copy
+    if not pg.locateOnScreen('./RSA_on.png'):
+        click_center('./RSA_main.png', 0, 0, showed=False)
+        pg.typewrite(token)
+        pg.press('enter')
+        time.sleep(1)
+    # Click RSA copy button
+    click_center('./RSA_copy.png', 0, 0, showed=False) 
+
+
+def connect_GP(x, y):
+    """
+    Connect GP
+    """
+    # find and click "connect"
+    pg.click(1870, 1010)
+    pg.moveRel(0,-200)
+    time.sleep(15)
+    # check if GP is reconnected or connecting
+    reconnect = False
+    connecting = False
+    count = 0
+    while (not (reconnect or connecting)):
+        # keep querying if reconnected
+        reconnect = pg.locateOnScreen('./GP_reconnect.png')
+        connecting = pg.locateOnScreen('./GP_login_signon.png')
+        print(f'reconnect: {reconnect}, connecting: {connecting}')
+        count += 1
+        # if stuck then do cleaning
+        if count > 50:
+            print('Something Stuck and cannot move...')
+            clear_status()
+            
+    # If it is connected after click "connect" goto choose_GP func
+    if reconnect:
+        choose_GP(x, y)
+        os._exit(0)
+    else:
+        signin(NT_PASSWD)
+        get_rsa(RSA_PASSWD)
+        # GP login with RSA
+        signin()
 
 def choose_GP(x, y):
     # check if no-split is connected
-    if (not pg.locateOnScreen('.\GP_nosplit.png')):
+    if (not pg.locateOnScreen('./GP_nosplit.png')):
         print('changing gateway')
         # click the "Change Gateway"
         pg.click(x+100, y-95, button='left', duration=0.3)
@@ -93,33 +134,6 @@ def choose_GP(x, y):
 
     print('GP is connected! Enjoy it!')
 
-
-def connect_GP(x, y):
-    """
-    Connect GP
-    """
-    # find and click "connect"
-    pg.click(1870, 1010)
-    pg.moveRel(0,-200)
-    time.sleep(10)
-    # check if GP is reconnected or not
-    reconnect = False
-    connecting = False
-    while (not (reconnect or connecting)):
-        # keep querying if reconnected
-        reconnect = pg.locateOnScreen('./GP_reconnect.png')
-        connecting = pg.locateOnScreen('./GP_login_signon.png')
-        print(f'reconnect: {reconnect}, connecting: {connecting}')
-    # If it is connected after click "connect" goto choose_GP func
-    if reconnect:
-        choose_GP(x, y)
-        os._exit(0)
-    else:
-        signin(NT_PASSWD)
-        get_rsa(RSA_PASSWD)
-        # GP login with RSA
-        signin()
-
 def clear_status():
     """
     Clear the hung status of GP login and then retry.
@@ -129,8 +143,9 @@ def clear_status():
     pg.moveTo(1300, 1056)
     pg.moveRel(500, 0, duration=0.5)
     print('Cleared unknown status, please retry')
-    # Exit the script
-    os._exit(0)
+    # waiting seconds and retry GPAC
+    time.sleep(5)
+    main()
 
 def refresh_web():
     """
@@ -140,9 +155,9 @@ def refresh_web():
     os.system('start <rcm_schedule_web>')
     time.sleep(5)
     # waiting for webpage loading complete
-    click_center('.\RCM_page.png', 0, 0, showed=False)
+    click_center('./RCM_page.png', 0, 0, showed=False)
     # check if self filter on, click the position if filter disabled
-    click_center('.\self_filter_off.png', 0, 0, showed=True)
+    click_center('./self_filter_off.png', 0, 0, showed=True)
     print('Web page loading ok with filter ON.')
 
 def dontsleep():
@@ -151,7 +166,7 @@ def dontsleep():
     """
     print('Starting Dontsleep...')
     # get the dontsleep disable icon
-    pos = pg.locateCenterOnScreen('.\dontsleep.png')
+    pos = pg.locateCenterOnScreen('./dontsleep.png')
     if pos:
         # enable the icon if we disabled
         pg.rightClick(pos[0], pos[1])
@@ -160,19 +175,20 @@ def dontsleep():
     else:
         print('Dontsleep is ON.')
 
-if __name__ == '__main__':
+
+def main():
     # Enable the dontsleep tool
     dontsleep()
     print('Starting GP...')
     # check if GP icon is gray(notconnected or connectfailed)
-    gray_gp = click_center('.\gray_GP1.png', 0, 0, showed=True) or click_center('.\gray_GP2.png', 0, 0, showed=True)
-    blue_gp = click_center('.\GP_blue.png', 0, 0, showed=True)
+    gray_gp = click_center('./gray_GP1.png', 0, 0, showed=True) or click_center('./gray_GP2.png', 0, 0, showed=True)
+    blue_gp = click_center('./GP_blue.png', 0, 0, showed=True)
     # if not connected then do connection flow
     if (gray_gp):
         gp_x, gp_y = gray_gp[0], gray_gp[1]
         connect_GP(gp_x, gp_y)
         time.sleep(10)
-        click_center('.\GP_blue.png', 0, 0, showed=False)
+        click_center('./GP_blue.png', 0, 0, showed=False)
         choose_GP(gp_x, gp_y)
     # if connected then check if no-split is choosen
     elif (blue_gp):
@@ -181,3 +197,6 @@ if __name__ == '__main__':
         choose_GP(gp_x, gp_y)
     else:
         clear_status()
+        
+if __name__ == '__main__':
+    main()
