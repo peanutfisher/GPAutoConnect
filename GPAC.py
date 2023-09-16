@@ -14,7 +14,7 @@ import os
 # 6. func(sign in rsa window) - check if cert_confirm - click ok
 # 7. wait for GP connected status --> check if gp no-split
 
-NT_PASSWD = 'Ballball15'
+NT_PASSWD = 'Ballball16'
 RSA_PASSWD = '10538185'
 
 def click_center(png, x_offset=0, y_offset=0, showed=True):
@@ -38,8 +38,9 @@ def click_center(png, x_offset=0, y_offset=0, showed=True):
                 number += 1
                 print(f'Waiting {png} for {number} times')
                 # in case we wait too much time
-                if number > 120:
+                if number > 80:
                     print('Loging process could be hung, clearing unknown status...')
+                    number = 0
                     clear_status()
             x1, y1 = showed[0], showed[1]
  
@@ -54,7 +55,7 @@ def click_center(png, x_offset=0, y_offset=0, showed=True):
 
 
 def signin(temp=None):
-    # mvoe mouse to input login passwd info
+    # move mouse to input login passwd info
     x1, y1 = click_center('./GP_login_signon.png', 0, -50, showed=False)
     # check if it is NT login or RSA login
     if temp:
@@ -62,12 +63,12 @@ def signin(temp=None):
     else:
         pg.hotkey('ctrl', 'v')
     # click "sign on" button
-    pg.click(x1, y1, button='left', duration=0.5)
-    time.sleep(3)
+    pg.doubleClick(x1, y1, button='left', duration=0.3)
+    #time.sleep(2)
     # click the certification confirm dialog
     # As the Certification confirm prompt sometimes not showup
-    for i in range(2):
-        click_center('./cert_confirm.png', 0, 0, showed=True)
+    #for i in range(2):
+    #    click_center('./cert_confirm.png', 0, 0, showed=True)
 
 
 def get_rsa(token):
@@ -94,7 +95,7 @@ def connect_GP(x, y):
     # find and click "connect"
     pg.click(1870, 1010)
     pg.moveRel(0,-200)
-    time.sleep(15)
+    time.sleep(10)
     # check if GP is reconnected or connecting
     reconnect = False
     connecting = False
@@ -108,6 +109,7 @@ def connect_GP(x, y):
         # if stuck then do cleaning
         if count > 50:
             print('Something Stuck and cannot move...')
+            count = 0
             clear_status()
             
     # If it is connected after click "connect" goto choose_GP func
@@ -187,7 +189,7 @@ def main():
     if (gray_gp):
         gp_x, gp_y = gray_gp[0], gray_gp[1]
         connect_GP(gp_x, gp_y)
-        time.sleep(10)
+        time.sleep(15)
         click_center('./GP_blue.png', 0, 0, showed=False)
         choose_GP(gp_x, gp_y)
     # if connected then check if no-split is choosen
