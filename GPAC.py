@@ -93,8 +93,8 @@ def get_rsa(token):
     Get RSA Credential
     """
     # Click RSA icon to show RSA main window
-    click_center('RSA_icon1.png')
-    click_center('RSA_icon2.png')
+    if not click_center('RSA_icon1.png'):
+        click_center('RSA_icon2.png')
     pg.moveRel(0,-200)    
     
     # Check if the RSA passcode is already being inputed, if not then get a new one
@@ -150,9 +150,9 @@ def choose_GP():
     # check if no-split is connected
     if (not pg.locateOnScreen('GP_nosplit.png', confidence=0.95)):
         print('changing gateway')
-        # click the "Change Gateway", 2 type 
-        click_center('GW_change.png')
-        click_center('GW_change1.png')
+        # click the "Change Gateway", 2 types(lose focus and with focus)
+        if not click_center('GW_change.png'):
+            click_center('GW_change1.png')
         if pg.locateOnScreen('GP_choose.png', confidence=0.95):
             # Use "Tab" key to redirect focus on the input area
             pg.press('tab')
@@ -165,6 +165,7 @@ def choose_GP():
         click_center('GP_nosplit.png', showed=False)
     
     print('GP is connected! Enjoy it!')
+    # refrsh_web()
 
 def clear_status():
     """
@@ -176,21 +177,17 @@ def clear_status():
     pg.moveRel(500, 0, duration=0.5)
     print('Cleared unknown status, please retry')
     # waiting seconds and retry GPAC
-    time.sleep(8)
+    time.sleep(10)
+    pg.hotkey('alt', 'tab')
     main()
 
 def refresh_web():
-    """
-    This method is to open a rcm schedule page and turn on self view after it has been loaded.
-    Desgined for LP.
-    """
-    os.system('start <rcm_schedule_web>')
+    print('Loading RCM webpage...')
+    os.system('start https://rcmappprd001.corp.emc.com/rcm/RCM_Schedule/schedule.php')
     time.sleep(5)
-    # waiting for webpage loading complete
-    click_center('RCM_page.png', 0, 0, showed=False)
-    # check if self filter on, click the position if filter disabled
-    click_center('self_filter_off.png', 0, 0, showed=True)
-    print('Web page loading ok with filter ON.')
+    # waiting for webpage loading complete and click home button
+    click_center('.\RCM_page.png', 1000, 70, showed=False)
+    print('RCM page loading ok!')
 
 def dontsleep():
     """
@@ -212,6 +209,7 @@ def main():
     # Enable the dontsleep tool
     dontsleep()
     print('Starting GP...')
+
     # check if GP icon is gray(notconnected or connectfailed)
     gray_gp = click_center('gray_GP1.png') or click_center('gray_GP2.png')
     blue_gp = click_center('GP_blue.png')
@@ -219,7 +217,7 @@ def main():
     # adding situation that GP icon if blinking for connecting
     if (gray_gp) or ((pg.locateOnScreen('GP_login_signon.png', confidence=0.95))):
         connect_GP()
-        time.sleep(10)
+        time.sleep(15)
         click_center('GP_blue.png', 0, 0, showed=False)
         choose_GP()
     # if connected then check if no-split is choosen
