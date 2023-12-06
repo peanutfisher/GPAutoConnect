@@ -1,6 +1,7 @@
 import pyautogui as pg
 import time
 import os
+from get_screen_size import *
 
 
 NT_PASSWD = 'Ballball17'
@@ -76,34 +77,19 @@ def choose_GP():
         pg.press('enter')
 
         
-os.chdir(os.path.join(os.getcwd(),'150'))
+#os.chdir(os.path.join(os.getcwd(),'150'))
 #print(pg.locateCenterOnScreen('RSA_main.png'))
 
-get_rsa(RSA_PASSWD)
+#get_rsa(RSA_PASSWD)
 #choose_GP()
 
-# import ctypes
-# user32 = ctypes.windll.user32
-# user32.GetDC(0)
-# height = user32.GetSystemMetrics(0)
-# width = user32.GetSystemMetrics(1)
-
-# print("DPI:", height, 'x', width)
-
-# from win32 import win32api, win32gui, win32print
-# from win32.lib import win32con
-
-# # 获得真实分辨率
-# w = win32api.GetSystemMetrics(0)
-# h = win32api.GetSystemMetrics(1)
-# #print(f'当前分辨率为 {w}x{h}')
-
-# # 获取缩放后的分辨率
-# hDC = win32gui.GetDC(0)
-# w1 = win32print.GetDeviceCaps(hDC, win32con.DESKTOPHORZRES)
-# h1 = win32print.GetDeviceCaps(hDC, win32con.DESKTOPVERTRES)
-# #print(f'缩放后的分辨率为 {w1}x{h1}')
-
-# # 缩放比例
-# scale_rate = round(w / w1, 2) * 100
-# #print(f'缩放率为{scale_rate}')
+def get_scale_rate():
+    """
+    Choose the picture folder based on current scale rate
+    """
+    current_width = get_screen_size()[0]
+    real_width = pg.size()[0]
+    scale_rate = round(real_width / current_width, 2) * 100
+    print(f'Current scale rate is {scale_rate}%')
+    
+get_scale_rate()

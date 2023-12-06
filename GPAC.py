@@ -1,10 +1,14 @@
+# coding: utf-8
+# author: peanutfish
+
 # 这是一个分支项目
 # pyautogui实现自动连接GP(global protect)
 
+import get_screen_size
 import pyautogui as pg
 import time
 import os
-# import cv2
+
 
 # Main steps:
 # 1. find GP icon->left click-> if already connected -> check if no-split -> if yes -> exit, if not -> func(choose no-split).
@@ -30,13 +34,8 @@ Cur_dir = os.getcwd()
 PIC_PATH = '150'
 os.chdir(os.path.join(Cur_dir, PIC_PATH))
 
-def get_scale_rate():
-    """
-    Used to check the current scrren scale rate and they change working director to specific folder which contains the pics
-    """
-    # change Working directory
-    os.chdir(os.path.join(os.getcwd(), PIC_PATH))
-    pass
+DPI = get_screen_size.get_scale_rate()
+print(DPI)
 
 def click_center(png, x_offset=0, y_offset=0, showed=True):
     """
@@ -228,4 +227,5 @@ def main():
         clear_status()
         
 if __name__ == '__main__':
+    get_scale_rate()
     main()
