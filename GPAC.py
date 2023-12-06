@@ -4,7 +4,7 @@
 # 这是一个分支项目
 # pyautogui实现自动连接GP(global protect)
 
-import get_screen_size
+from get_screen_size import *
 import pyautogui as pg
 import time
 import os
@@ -26,16 +26,30 @@ import os
 # RSA will change away after copied
 
 # Account/Password depneds on you
-NT_PASSWD = 'Ballball17'
-RSA_PASSWD = '10538185'
+NT_PASSWD = ''
+RSA_PASSWD = ''
+SCALE_RATE = ''
 
-# The pictures are inside different folders based on resolution size
-Cur_dir = os.getcwd()
-PIC_PATH = '150'
-os.chdir(os.path.join(Cur_dir, PIC_PATH))
 
-DPI = get_screen_size.get_scale_rate()
-print(DPI)
+def check_config(filename):
+    config_dict = read_config(filename)
+    if 'NT_PASSWORD' not in config_dict:
+        nt_passwd = pg.password(text='NT_PASSWORD:', title='Please input your NT password', default='')
+        write_config(filename, 'a', 'NT_PASSWORD', nt_passwd)
+
+    if 'RSA_CODE' not in config_dict:
+        rsa_code = pg.password(text='RSA_CODE:', title='Please input your RSA passcode', default='')
+        write_config(filename, 'a', 'RSA_CODE', rsa_code)
+    
+    # reload the config file in case we had new update
+    config_dict = read_config(filename)
+        
+    SCALE_RATE = config_dict['Scale_Rate']
+    NT_PASSWD = config_dict['NT_PASSWORD']
+    RSA_PASSWD = config_dict['RSA_CODE']
+    
+    return [SCALE_RATE, NT_PASSWD, RSA_PASSWD]
+
 
 def click_center(png, x_offset=0, y_offset=0, showed=True):
     """
@@ -205,6 +219,14 @@ def dontsleep():
 
 
 def main():
+    secret = check_config('config.ini')
+    SCALE_RATE = secret[0]
+    NT_PASSWD = secret[1]
+    RSA_PASSWD = secret[2]
+    
+    # The pictures are inside different folders based on resolution size
+    os.chdir(os.path.join(os.getcwd(), SCALE_RATE))
+    print(os.getcwd())
     # Enable the dontsleep tool
     dontsleep()
     print('Starting GP...')
@@ -227,5 +249,4 @@ def main():
         clear_status()
         
 if __name__ == '__main__':
-    get_scale_rate()
     main()
