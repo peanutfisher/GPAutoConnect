@@ -47,16 +47,18 @@ def get_rsa(token):
     Get RSA Credential
     """
     # Click RSA icon to show RSA main window
-    click_center('RSA_icon1.png')
-    click_center('RSA_icon2.png')
-    pg.moveRel(0,-200)    
-    
+    if not click_center('RSA_icon1.png'):
+        click_center('RSA_icon2.png')
+    pg.moveTo(0,500)    
+    time.sleep(3)
     # Check if the RSA passcode is already being inputed, if not then get a new one
     if not click_center('RSA_copy.png'):
-        click_center('RSA_main.png', 0, 0, showed=False)
+        if not click_center('RSA_main.png'):
+            click_center('RSA_main1.png')
+        
         pg.typewrite(token)
         pg.press('enter')
-        time.sleep(1)
+        time.sleep(3)
         # click copy button
         click_center('RSA_copy.png')
 
@@ -76,20 +78,22 @@ def choose_GP():
         pg.press('tab')
         pg.press('enter')
 
+def signin(temp=None):
+    # move mouse to input login passwd info
+    x1, y1 = click_center('GP_login_signon.png', 0, -85, showed=False)
+    # check if it is NT login or RSA login
+    if temp:
+        pg.typewrite(temp)
+    else:
+        pg.hotkey('ctrl', 'v')
+    # click "sign on" button
+    pg.doubleClick(x1, y1, button='left', duration=0.3)
+    time.sleep(2)
         
-#os.chdir(os.path.join(os.getcwd(),'150'))
-#print(pg.locateCenterOnScreen('RSA_main.png'))
+os.chdir(os.path.join(os.getcwd(),'125'))
+#print(pg.locateCenterOnScreen('RSA_main1.png'))
 
-#get_rsa(RSA_PASSWD)
+#signin(NT_PASSWD)
+
+get_rsa(RSA_PASSWD)
 #choose_GP()
-
-def get_scale_rate():
-    """
-    Choose the picture folder based on current scale rate
-    """
-    current_width = get_screen_size()[0]
-    real_width = pg.size()[0]
-    scale_rate = round(real_width / current_width, 2) * 100
-    print(f'Current scale rate is {scale_rate}%')
-    
-get_scale_rate()

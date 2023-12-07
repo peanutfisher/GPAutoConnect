@@ -64,15 +64,15 @@ def click_center(png, x_offset=0, y_offset=0, showed=True):
         # first check if need to wait ICON/PROMPT showup
         # if ICON/PROMPT is there then get its position
         if showed:
-            x1, y1 = pg.locateCenterOnScreen(png, confidence=0.95)
+            x1, y1 = pg.locateCenterOnScreen(png, confidence=0.96)
         else:
             # if ICON/PROMPT is not there then waiting it showup
             while (not showed):
-                showed = pg.locateCenterOnScreen(png, confidence=0.95)
+                showed = pg.locateCenterOnScreen(png, confidence=0.96)
                 number += 1
                 print(f'Waiting {png} for {number} times')
                 # in case we wait too much time
-                if number > 80:
+                if number > 100:
                     print('Loging process could be hung, clearing unknown status...')
                     number = 0
                     clear_status()
@@ -83,6 +83,7 @@ def click_center(png, x_offset=0, y_offset=0, showed=True):
         # return back center position
         print(f'{png} position({x1},{y1})')
         return (x1, y1)
+    
     except Exception as e:
         print(f'Cannot find {png} in your Screen.')
 
@@ -98,7 +99,7 @@ def signin(temp=None):
         pg.hotkey('ctrl', 'v')
     # click "sign on" button
     pg.doubleClick(x1, y1, button='left', duration=0.3)
-    #time.sleep(2)
+    time.sleep(2)
 
 
 def get_rsa(token):
@@ -108,11 +109,12 @@ def get_rsa(token):
     # Click RSA icon to show RSA main window
     if not click_center('RSA_icon1.png'):
         click_center('RSA_icon2.png')
-    pg.moveRel(0,-200)    
-    
+    pg.moveTo(0,500)
+    time.sleep(3)    
     # Check if the RSA passcode is already being inputed, if not then get a new one
     if not click_center('RSA_copy.png'):
-        click_center('RSA_main.png', 0, 0, showed=False)
+        if not click_center('RSA_main.png'):
+            click_center('RSA_main1.png')
         pg.typewrite(token)
         pg.press('enter')
         time.sleep(1)
@@ -190,8 +192,12 @@ def clear_status():
     pg.moveRel(500, 0, duration=0.5)
     print('Cleared unknown status, please retry')
     # waiting seconds and retry GPAC
-    time.sleep(10)
+    time.sleep(15)
+    # Make the GP window lose focus
     pg.hotkey('alt', 'tab')
+    # restore the working directory before retrying
+    os.chdir(os.pardir)
+    
     main()
 
 def refresh_web():
@@ -223,7 +229,7 @@ def main():
     SCALE_RATE = secret[0]
     NT_PASSWD = secret[1]
     RSA_PASSWD = secret[2]
-    
+    print([SCALE_RATE, NT_PASSWD, RSA_PASSWD])
     # The pictures are inside different folders based on resolution size
     os.chdir(os.path.join(os.getcwd(), SCALE_RATE))
     print(os.getcwd())
@@ -232,7 +238,7 @@ def main():
     print('Starting GP...')
 
     # check if GP icon is gray(notconnected or connectfailed)
-    gray_gp = click_center('gray_GP1.png') or click_center('gray_GP2.png')
+    gray_gp = click_center('gray_GP1.png', showed=True) or click_center('gray_GP2.png', showed=True)
     blue_gp = click_center('GP_blue.png')
     # if not connected then do connection flow
     # adding situation that GP icon if blinking for connecting
