@@ -32,6 +32,9 @@ SCALE_RATE = ''
 
 
 def check_config(filename):
+    """
+    Check the config file and get parms
+    """
     config_dict = read_config(filename)
     if 'NT_PASSWORD' not in config_dict:
         nt_passwd = pg.password(text='NT_PASSWORD:', title='Please input your NT password', default='')
@@ -70,9 +73,10 @@ def click_center(png, x_offset=0, y_offset=0, showed=True):
             while (not showed):
                 showed = pg.locateCenterOnScreen(png, confidence=0.96)
                 number += 1
+                time.sleep(1)
                 print(f'Waiting {png} for {number} times')
                 # in case we wait too much time
-                if number > 100:
+                if number > 60:
                     print('Loging process could be hung, clearing unknown status...')
                     number = 0
                     clear_status()
@@ -94,7 +98,7 @@ def signin(temp=None):
     x1, y1 = click_center('GP_login_signon.png', 0, -85, showed=False)
     # check if it is NT login or RSA login
     if temp:
-        pg.typewrite(temp)
+        pg.write(temp)
     else:
         pg.hotkey('ctrl', 'v')
     # click "sign on" button
@@ -125,7 +129,7 @@ def get_rsa(token):
     pg.hotkey('alt', 'tab')
 
 
-def connect_GP():
+def connect_GP(passwd1, passwd2):
     """
     Connect GP
     """
@@ -143,10 +147,14 @@ def connect_GP():
         # keep querying if reconnected
         reconnect = pg.locateOnScreen('GW_change.png', confidence=0.95)
         connecting = pg.locateOnScreen('GP_login_signon.png', confidence=0.95)
-        print(f'reconnect: {reconnect}, connecting: {connecting}, check: {count}times')
+        
+        # record retry times
         count += 1
+        print(f'reconnect: {reconnect}, connecting: {connecting}, check: {count}times')
+        
+        time.sleep(1)
         # if stuck then do cleaning
-        if count > 100:
+        if count > 60:
             print('Something Stuck and cannot move...')
             count = 0
             clear_status()
@@ -156,8 +164,8 @@ def connect_GP():
         choose_GP()
         os._exit(0)
     else:
-        signin(NT_PASSWD)
-        get_rsa(RSA_PASSWD)
+        signin(passwd1)
+        get_rsa(passwd2)
         # GP login with RSA
         signin()
 
@@ -180,7 +188,7 @@ def choose_GP():
         click_center('GP_nosplit.png', showed=False)
     
     print('GP is connected! Enjoy it!')
-    # refrsh_web()
+    # refresh_web()
 
 def clear_status():
     """
@@ -192,9 +200,9 @@ def clear_status():
     pg.moveRel(500, 0, duration=0.5)
     print('Cleared unknown status, please retry')
     # waiting seconds and retry GPAC
-    time.sleep(15)
+    time.sleep(30)
     # Make the GP window lose focus
-    pg.hotkey('alt', 'tab')
+    pg.hotkey('win', 'd')
     # restore the working directory before retrying
     os.chdir(os.pardir)
     
@@ -205,7 +213,7 @@ def refresh_web():
     os.system('start https://rcmappprd001.corp.emc.com/rcm/RCM_Schedule/schedule.php')
     time.sleep(5)
     # waiting for webpage loading complete and click home button
-    click_center('.\RCM_page.png', 1000, 70, showed=False)
+    click_center('RCM_page.png', 1000, 70, showed=False)
     print('RCM page loading ok!')
 
 def dontsleep():
@@ -213,15 +221,15 @@ def dontsleep():
     This is use to start the dontsleep tools.
     """
     print('Starting Dontsleep...')
-    # get the dontsleep disable icon
-    pos = pg.locateCenterOnScreen('dontsleep.png', confidence=0.95)
-    if pos:
-        # enable the icon if we disabled
-        pg.rightClick(pos[0], pos[1])
-        pg.click(pos[0]-10, pos[1]-10)
-        pg.moveRel(0, -30)
+    # get the dontsleep icon
+    pos = pg.locateCenterOnScreen('dontsleep.png', confidence = 0.90)
+    pg.rightClick(pos[0], pos[1])
+    # enable the icon if we disabled
+    if click_center('dontsleep_off.png'):    
+        print('Enable the Dontsleep.')
     else:
         print('Dontsleep is ON.')
+    pg.moveRel(0, -200)    
 
 
 def main():
@@ -233,17 +241,21 @@ def main():
     # The pictures are inside different folders based on resolution size
     os.chdir(os.path.join(os.getcwd(), SCALE_RATE))
     print(os.getcwd())
+    
     # Enable the dontsleep tool
     dontsleep()
+    
     print('Starting GP...')
-
-    # check if GP icon is gray(notconnected or connectfailed)
-    gray_gp = click_center('gray_GP1.png', showed=True) or click_center('gray_GP2.png', showed=True)
+    
+    connect_flag = (pg.locateOnScreen('GP_login_signon.png', confidence=0.95)) or (pg.locateOnScreen('GP_connect1.png', confidence=0.95))
+    if not connect_flag:
+        # check if GP icon is gray(notconnected or connectfailed)
+        gray_gp = click_center('gray_GP1.png', showed=True) or click_center('gray_GP2.png', showed=True)
     blue_gp = click_center('GP_blue.png')
     # if not connected then do connection flow
     # adding situation that GP icon if blinking for connecting
-    if (gray_gp) or ((pg.locateOnScreen('GP_login_signon.png', confidence=0.95))):
-        connect_GP()
+    if connect_flag or gray_gp :
+        connect_GP(NT_PASSWD, RSA_PASSWD)
         time.sleep(15)
         click_center('GP_blue.png', 0, 0, showed=False)
         choose_GP()

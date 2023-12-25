@@ -36,7 +36,7 @@ def write_config(filename, mode, description, value):
     with open(filename, mode) as f:    
         f.write(description + ':' + value)
         f.write('\n')
-        print(f'New {description} is stored in config file')
+        print(f'The {description} is stored in config file')
 
 def read_config(filename):
     """
@@ -53,7 +53,7 @@ def compare_config(dict, description, value):
     try:
         if dict[description] == value:
             print(f'{description} is loaded :), continue...')
-            return True
+
     except:
         return False
         
@@ -66,4 +66,4 @@ if __name__ == '__main__':
     config_dict = read_config('config.ini')
     
     if not compare_config(config_dict, 'Scale_Rate', scale_rate):
-        write_config('config.ini', 'w', 'Scale_Rate', scale_rate)
+        write_config('config.ini', 'r+', 'Scale_Rate', scale_rate)

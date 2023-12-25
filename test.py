@@ -89,11 +89,27 @@ def signin(temp=None):
     # click "sign on" button
     pg.doubleClick(x1, y1, button='left', duration=0.3)
     time.sleep(2)
-        
+
+def dontsleep():
+    """
+    This is use to start the dontsleep tools.
+    """
+    print('Starting Dontsleep...')
+    # get the dontsleep icon
+    pos = pg.locateCenterOnScreen('dontsleep.png', confidence = 0.90)
+    pg.rightClick(pos[0], pos[1])
+    # enable the icon if we disabled
+    if click_center('dontsleep_off.png'):    
+        print('Enable the Dontsleep.')
+    else:
+        print('Dontsleep is ON.')
+                
 os.chdir(os.path.join(os.getcwd(),'125'))
-#print(pg.locateCenterOnScreen('RSA_main1.png'))
+#gray_gp = click_center('gray_GP1.png', showed=True) or click_center('gray_GP2.png', showed=True)
+#print(pg.locateCenterOnScreen('GP_connect.png'))
+#print(pg.locateCenterOnScreen('RSA_main.png'))
 
 #signin(NT_PASSWD)
-
-get_rsa(RSA_PASSWD)
+#get_rsa(RSA_PASSWD)
 #choose_GP()
+dontsleep()
