@@ -263,7 +263,7 @@ def main():
         choose_GP()
     
     # Scenario 2: click gray GP icon for 1st connection or there is a GP window there for connection
-    elif click_center('gray_GP1.png', repeated=False) or click_center('gray_GP2.png', repeated=False) or click_center('GP_connect.png', click=False, repeated=False):
+    elif click_center('GP_connect.png', click=False, repeated=False) or click_center('gray_GP1.png', repeated=False) or click_center('gray_GP2.png', repeated=False):
         connect_GP(NT_PASSWD, RSA_PASSWD)
         time.sleep(15)
         if not click_center('GW_change.png', repeated=False):
