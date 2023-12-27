@@ -185,11 +185,11 @@ def choose_GP():
         click_center('GW_change.png')
         time.sleep(1)
         
-        if click_center('GP_choose.png', repeated=False):
-            # Search No split channel and connecting
-            pg.typewrite('no')
-            pg.press('tab')
-            pg.press('enter')
+        click_center('GP_choose.png', repeated=False)
+        # Search No split channel and connecting
+        pg.typewrite('no')
+        pg.press('tab')
+        pg.press('enter')
         # Waiting for few seconds until connected
         time.sleep(10)
         click_center('GP_nosplit.png')
@@ -241,7 +241,7 @@ def dontsleep():
 
 def main():
     # Make the GP window lose focus
-    pg.hotkey('win', 'd')
+    #pg.hotkey('win', 'd')
     
     secret = check_config('config.ini')
     SCALE_RATE = secret[0]
