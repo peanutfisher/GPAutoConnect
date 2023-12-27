@@ -280,8 +280,8 @@ def main():
     
     # The worst scenario - cannot connect
     else:
-        #clear_status()
-        print('Main process failure')
+        clear_status()
+        #print('Main process failure')
     
         
 if __name__ == '__main__':
