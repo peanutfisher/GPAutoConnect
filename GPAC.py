@@ -25,6 +25,10 @@ import os
 # add verification in the last step
 # RSA will change away after copied
 
+# Update Dec.27 2023
+# big change to click_center function, it can recognize the picture with different confidence
+# according change to other parts
+
 # Account/Password depneds on you
 NT_PASSWD = ''
 RSA_PASSWD = ''
@@ -90,7 +94,7 @@ def click_center(image, click=True, wait_time=1, num=0.96, repeated=True):
     
     except Exception as e:
         print(f'Cannot find {image} in your Screen.')
-        # clear_status()
+        clear_status()
 
 def signin(NT_PW, TOKEN):
     # Get the RSA code firstly
@@ -160,7 +164,7 @@ def connect_GP(NT_PW, TOKEN):
             if count > 10:
                 print('Something Stuck and cannot move...')
                 count = 0
-                #clear_status()
+                clear_status()
             
         # If it is connected after click "connect" goto choose_GP func
         if reconnect:
@@ -169,9 +173,9 @@ def connect_GP(NT_PW, TOKEN):
         else:
             signin(NT_PW, TOKEN)
 
+    # connecting or reconnect
     else:
-        choose_GP()
-        print('Connet_GP failure')  
+        choose_GP()  
         
 def choose_GP():
     # check if no-split is connected
@@ -201,12 +205,11 @@ def clear_status():
     """
     os.system('taskkill /IM PanGPA.exe /F')
     pg.moveTo(1300, 1056)
-    pg.moveRel(500, 0, duration=0.5)
-    print('Cleared unknown status, please retry')
+    pg.moveRel(500, 0, duration=1)
+    print('Cleared unknown status, retrying')
     # waiting seconds and retry GPAC
     time.sleep(30)
-    # Make the GP window lose focus
-    pg.hotkey('win', 'd')
+
     # restore the working directory before retrying
     os.chdir(os.pardir)
     
@@ -233,15 +236,19 @@ def dontsleep():
         print('Enable the Dontsleep.')
     else:
         print('Dontsleep is ON.')
-    pg.moveRel(0, -200)    
+    pg.click(540, 960)   
 
 
 def main():
+    # Make the GP window lose focus
+    pg.hotkey('win', 'd')
+    
     secret = check_config('config.ini')
     SCALE_RATE = secret[0]
     NT_PASSWD = secret[1]
     RSA_PASSWD = secret[2]
     #print([SCALE_RATE, NT_PASSWD, RSA_PASSWD])
+    
     # The pictures are inside different folders based on resolution size
     os.chdir(os.path.join(os.getcwd(), SCALE_RATE))
     print(os.getcwd())
